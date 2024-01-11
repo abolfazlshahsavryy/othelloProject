@@ -1,0 +1,852 @@
+#include <stdio.h>
+void meno(int *cond);
+void print_page(char gaem[8][8]);
+void name_get(char name1[50], char name2[50]);
+void print_name(char name1[50], char name2[50]);
+void print_point(int point_black, int point_white);
+void black_run(char game[8][8], int *x_move, int *y_move);
+void white_run(char game[8][8], int *x_move, int *y_move);
+int is_game_run(char game[8][8], int *point_black, int *point_white);
+int is_find_neibor(int x_move, int y_move, char game[8][8], int *point_black, int *point_white);
+void find_neigbor(int x_move, int y_move, char game[8][8], int *point_black, int *point_white);
+void change(char game[8][8], int x_move, int y_move, int x, int y, char another_char, int *point_black, int *point_white);
+
+int main()
+{
+    while (1)
+    {
+        char game[8][8] = {{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                           {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                           {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                           {' ', ' ', ' ', 'b', 'w', ' ', ' ', ' '},
+                           {' ', ' ', ' ', 'w', 'b', ' ', ' ', ' '},
+                           {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                           {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                           {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}};
+
+        int condition;
+        int *ptr_condition = &condition;
+        int x_move, y_move;
+        int point_black = 2, point_white = 2;
+        char name1[50];
+        char name2[50];
+
+        meno(ptr_condition);
+
+        int is_get_user_name = 0;
+        if (condition == 11)
+        {
+            do
+            {
+                
+            
+                print_page(game);
+                do
+                {
+
+                    black_run(game, &x_move, &y_move);
+                    x_move--;
+                    y_move--;
+                    if (game[x_move][y_move] != ' ')
+                    {
+                        continue;
+                    }
+                    game[x_move][y_move] = 'b';
+
+                    if (is_find_neibor(x_move, y_move, game, &point_black, &point_white) == 0)
+                    {
+                        game[x_move][y_move]=' ';
+                    }
+                } while (game[x_move][y_move] == ' ');
+                
+                find_neigbor(x_move, y_move, game, &point_black, &point_white);
+                print_page(game);
+
+                /*if (is_game_run(game, &point_black, &point_white) == 0)
+                {
+                    if (point_black > point_white)
+                    {
+                        printf("The winner is :%s", name1);
+                    }
+                    else
+                    {
+                        printf("The winner is :%s", name2);
+                    }
+                }*/
+            
+
+                print_page(game);
+                do
+                {
+
+                    white_run(game, &x_move, &y_move);
+                    x_move--;
+                    y_move--;
+                    /*check if the chosed position is empty*/
+                    if (game[x_move][y_move] != ' ')
+                    {
+                        continue;
+                    }
+                    /*add the 'w' to the selected position*/
+                    game[x_move][y_move]='w';
+                    if (is_find_neibor(x_move, y_move, game, &point_black, &point_white) == 0)
+                    {
+                        continue;
+                    }
+
+                } while (game[x_move][y_move] == ' ');
+                find_neigbor(x_move, y_move, game, &point_black, &point_white);
+                print_page(game);
+                /*
+                if (is_game_run(game, &point_black, &point_white) == 0)
+                {
+                    if (point_black > point_white)
+                    {
+                        printf("The winner is :%s", name1);
+                    }
+                    else
+                    {
+                        printf("The winner is :%s", name2);
+                    }
+                }*/
+                
+
+                print_page(game);
+
+            } while (1);
+        }
+        else if (condition == 12)
+        {
+        }
+        else if (condition == 2)
+        {
+        }
+        else if (condition == 3)
+        {
+            printf("exit");
+        }
+    }
+}
+void print_page(char game[8][8])
+
+{
+    printf("    %d  %d  %d  %d  %d  %d  %d  %d\n", 1, 2, 3, 4, 5, 6, 7, 8);
+    for (int i = 0; i < 8; i++)
+    {
+        printf("%d :", i + 1);
+
+        for (int j = 0; j < 8; j++)
+        {
+
+            printf("(%c)", game[i][j]);
+            if (j == 7)
+            {
+                printf("\n");
+            }
+        }
+
+        printf("\n");
+    }
+}
+void print_name(char name1[50], char name2[50])
+{
+    printf(" player one is: %s\n", name1);
+    printf(" player two is: %s\n", name2);
+}
+void print_point(int point_black, int point_white)
+{
+    printf("enter point of player 1: %d\n", point_black);
+    printf("enter point of player 2: %d\n", point_white);
+}
+
+void change(char game[8][8], int x_move, int y_move, int x, int y, char another_char, int *point_black, int *point_white)
+{
+    // x is the position of finded mohreh
+    // y is the posision of finded mohreh
+    // y_move is the position of entered mohreh
+    // x_move is the posision of enteres mohreh
+    if (x == x_move)
+    {
+        if (y > y_move)
+        {
+            for (int i = y_move + 1; i < y; i++)
+            {
+                game[x_move][i] = game[x_move][y_move];
+                if (another_char == 'b')
+                {
+                    *point_white++;
+                }
+                else
+                {
+                    *point_black++;
+                }
+            }
+        }
+        else
+        {
+            for (int i = y + 1; i < y_move; i++)
+            {
+                game[x_move][i] = game[x_move][y_move];
+                if (another_char == 'b')
+                {
+                    *point_white++;
+                }
+                else
+                {
+                    *point_black++;
+                }
+            }
+        }
+    }
+    if (y == y_move)
+    {
+        if (x > x_move)
+        {
+            for (int i = x_move + 1; i < x; i++)
+            {
+                game[i][y_move] = game[x_move][y_move];
+                if (another_char == 'b')
+                {
+                    *point_white++;
+                }
+                else
+                {
+                    *point_black++;
+                }
+            }
+        }
+        else
+        {
+            for (int i = x + 1; i < x_move; i++)
+            {
+                game[i][y_move] = game[x_move][y_move];
+                if (another_char == 'b')
+                {
+                    *point_white++;
+                }
+                else
+                {
+                    *point_black++;
+                }
+            }
+        }
+    }
+    int i1 = x_move;
+    int j1 = y_move;
+
+    if (y != y_move && x != x_move)
+    {
+
+        if (x > x_move && y > y_move)
+        {
+
+            while (i1 != x)
+            {
+                i1++;
+                j1++;
+                game[i1][j1] = game[x_move][y_move];
+                if (another_char == 'b')
+                {
+                    *point_white++;
+                }
+                else
+                {
+                    *point_black++;
+                }
+            }
+        }
+        else if (x > x_move && y_move > y)
+        {
+            while (i1 != x)
+            {
+                i1++;
+                j1--;
+                game[i1][j1] = game[x_move][y_move];
+                if (another_char == 'b')
+                {
+                    *point_white++;
+                }
+                else
+                {
+                    *point_black++;
+                }
+            }
+        }
+        else if (x_move > x && y > y_move)
+        {
+            i1--;
+            j1++;
+            game[i1][j1] = game[x_move][y_move];
+            if (another_char == 'b')
+            {
+                *point_white++;
+            }
+            else
+            {
+                *point_black++;
+            }
+        }
+        else if (x_move > x && y_move > y)
+        {
+            i1--;
+            j1--;
+            game[i1][j1] = game[x_move][y_move];
+            if (another_char == 'b')
+            {
+                *point_white++;
+            }
+            else
+            {
+                *point_black++;
+            }
+        }
+    }
+}
+void black_run(char game[8][8], int *x_move, int *y_move)
+{
+    printf("black tunr :\n\n");
+    printf("enter row of your move:");
+    scanf("%d", x_move);
+    printf("enter column of your move: ");
+    scanf("%d", y_move);
+}
+void white_run(char game[8][8], int *x_move, int *y_move)
+
+{
+    printf("white tunr :\n\n");
+    printf("enter rwo of your move:");
+    scanf("%d", x_move);
+    printf("enter column of your move: ");
+    scanf("%d", y_move);
+}
+void find_neigbor(int x_move, int y_move, char game[8][8], int *point_black, int *point_white)
+{
+    int achive_black = 0;
+    int x = x_move;
+    int y = y_move;
+    int x_black_find = -1;
+    int y_black_find = -1;
+    int get_end = 0;
+    char another_char;
+    if (game[x_move][y_move] == 'b')
+    {
+        another_char = 'w';
+    }
+    else
+    {
+        another_char = 'b';
+    }
+    // find the black upper
+    x--;
+    while (get_end == 0)
+    {
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            x_black_find = x;
+            y_black_find = y;
+            change(game, x_move, y_move, x_black_find, y_black_find, another_char, point_black, point_white);
+            break;
+        }
+        else if (game[x][y] == another_char)
+        {
+            x--;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // find black down
+    x = x_move;
+    y = y_move;
+    x++;
+    while (get_end == 0)
+    {
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            x_black_find = x;
+            y_black_find = y;
+            change(game, x_move, y_move, x_black_find, y_black_find, another_char, point_black, point_white);
+            break;
+        }
+        else if (game[x][y] == another_char)
+        {
+            x++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // find black right
+    x = x_move;
+    y = y_move;
+    y++;
+    while (get_end == 0)
+    {
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            x_black_find = x;
+            y_black_find = y;
+            change(game, x_move, y_move, x_black_find, y_black_find, another_char, point_black, point_white);
+            break;
+        }
+        else if (game[x][y] == another_char)
+        {
+            y++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // find black left
+    x = x_move;
+    y = y_move;
+    y--;
+    while (get_end == 0)
+    {
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            x_black_find = x;
+            y_black_find = y;
+            change(game, x_move, y_move, x_black_find, y_black_find, another_char, point_black, point_white);
+            break;
+        }
+        else if (game[x][y] == another_char)
+        {
+            y--;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // find black up-right
+    x = x_move;
+    y = y_move;
+    x--;
+    y++;
+    while (get_end == 0)
+    {
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            x_black_find = x;
+            y_black_find = y;
+            change(game, x_move, y_move, x_black_find, y_black_find, another_char, point_black, point_white);
+            break;
+        }
+        else if (game[x][y] == another_char)
+        {
+            x--;
+            y++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // find black up-left
+    x = x_move;
+    y = y_move;
+    x--;
+    y--;
+    while (get_end == 0)
+    {
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            x_black_find = x;
+            y_black_find = y;
+            change(game, x_move, y_move, x_black_find, y_black_find, another_char, point_black, point_white);
+            break;
+        }
+        else if (game[x][y] == another_char)
+        {
+            x--;
+            y--;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // find black down-right
+    x = x_move;
+    y = y_move;
+    x++;
+    y++;
+    while (get_end == 0)
+    {
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            x_black_find = x;
+            y_black_find = y;
+            change(game, x_move, y_move, x_black_find, y_black_find, another_char, point_black, point_white);
+            break;
+        }
+        else if (game[x][y] == another_char)
+        {
+            x++;
+            y++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // find black down-left
+    x = x_move;
+    y = y_move;
+    x++;
+    y--;
+    while (get_end == 0)
+    {
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            x_black_find = x;
+            y_black_find = y;
+            change(game, x_move, y_move, x_black_find, y_black_find, another_char, point_black, point_white);
+            break;
+        }
+        else if (game[x][y] == another_char)
+        {
+            x++;
+            y--;
+        }
+        else
+        {
+            break;
+        }
+    }
+}
+int is_game_run(char game[8][8], int *point_black, int *point_white)
+{
+    /*check if all the psition on the page game is complete*/
+    int counter_home = 0;
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            if (game[i][j] == 'b' || game[i][j] == 'w')
+            {
+                counter_home++;
+            }
+        }
+    }
+    if (counter_home == 64)
+    {
+        return 0;
+    }
+    /*find all empty place in bord*/
+    int number_of_empty = 0;
+    /* th array kept index */
+    int arr_x_empty[64] = {0};
+    int arr_y_empty[64] = {0};
+    int index_arr_x = 0;
+    int index_arr_y = 0;
+    /*find the position of empty palce*/
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            if (game[i][j] == ' ')
+            {
+                number_of_empty++;
+                arr_x_empty[index_arr_x] = i;
+                arr_y_empty[index_arr_y] = j;
+                index_arr_x++;
+                index_arr_y++;
+            }
+        }
+    }
+    /*check all the empty psition that can be inseted by player*/
+    int counter_of_unable = 0;
+    for (int i = 0; i < number_of_empty; i++)
+    {
+        
+        
+            if (is_find_neibor(arr_x_empty[i], arr_y_empty[i], game, point_black, point_white) == 0)
+            {
+                counter_of_unable++;
+            }
+            else{
+
+            }
+        
+    }
+    if (counter_of_unable == number_of_empty)
+    {
+        return 0;
+    }
+    return 1;
+}
+void meno(int *cond)
+{
+    printf("chose type of game: \n\n");
+    printf("(1) new game:\n");
+    printf("(2) continue last game:\n");
+    printf("(3) exit:\n");
+    int condition;
+    scanf("%d", &condition);
+    int condition1;
+    if (condition == 1)
+    {
+        printf("(1)normal game:\n");
+        printf("(2)pro game game:\n");
+        scanf("%d", &condition1);
+        if (condition1 == 1)
+        {
+            *cond = 11;
+        }
+        else if (condition1 == 2)
+        {
+            *cond = 12;
+        }
+    }
+    else if (condition == 2)
+    {
+        *cond = 2;
+    }
+    else if (condition == 3)
+    {
+        *cond = 3;
+    }
+}
+void name_get(char name1[50], char name2[50])
+{
+    printf("enter name of user 1:");
+    scanf("%s", name1);
+    printf("enter name of user 2:");
+    scanf("%s", name2);
+}
+int is_find_neibor(int x_move, int y_move, char game[8][8], int *point_black, int *point_white)
+{
+    
+    /* the x int and y int is define to (x,y) position of the achivement of the same pice*/
+    int x = x_move;
+    int y = y_move;
+
+    int get_end = 0;
+    /* the another char is define to detemine the rivel of the player 
+    for example 'w' is rivel of 'b'*/
+    char another_char;
+    /*one of the thinks that we have to check is if the pice not to be beside the enserted pice*/
+    int is_neigbor_beside=0;
+    /* condition to fine another pice or rivel pice*/
+
+    if (game[x_move][y_move] == 'b')
+    {
+        another_char = 'w';
+    }
+    else
+    {
+        another_char = 'b';
+    }
+    // find the black upper
+    x--;
+    while (get_end == 0)
+    {
+        if(is_neigbor_beside!=0){
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            return 1;
+        }}
+        /*this condition check if the neigbor of the pice is rivel checked the another pice in that way*/
+        else if (game[x][y] == another_char)
+        {
+            x--;
+            is_neigbor_beside++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // find black down
+    x = x_move;
+    y = y_move;
+    is_neigbor_beside=0;
+    x++;
+    
+    while (get_end == 0)
+    {
+
+        if(is_neigbor_beside!=0){
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            return 1;
+        }}
+        else if (game[x][y] == another_char)
+        {
+            x++;
+            is_neigbor_beside++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // find black right
+    x = x_move;
+    y = y_move;
+    is_neigbor_beside=0;
+    y++;
+    while (get_end == 0)
+    {
+
+        if(is_neigbor_beside!=0){
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            return 1;
+        }}
+        else if (game[x][y] == another_char)
+        {
+            y++;
+            is_neigbor_beside++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // find black left
+    x = x_move;
+    y = y_move;
+    is_neigbor_beside=0;
+    y--;
+    while (get_end == 0)
+    {
+
+        if(is_neigbor_beside!=0){
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            return 1;
+        }}
+        else if (game[x][y] == another_char)
+        {
+            y--;
+            is_neigbor_beside++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // find black up-right
+    x = x_move;
+    y = y_move;
+    is_neigbor_beside=0;
+    x--;
+    y++;
+    while (get_end == 0)
+    {
+
+        if(is_neigbor_beside!=0){
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            return 1;
+        }}
+        else if (game[x][y] == another_char)
+        {
+            x--;
+            y++;
+            is_neigbor_beside++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // find black up-left
+    x = x_move;
+    y = y_move;
+    is_neigbor_beside=0;
+    x--;
+    y--;
+    while (get_end == 0)
+    {
+
+        if(is_neigbor_beside!=0){
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            return 1;
+        }}
+        else if (game[x][y] == another_char)
+        {
+            x--;
+            y--;
+            is_neigbor_beside++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // find black down-right
+    x = x_move;
+    y = y_move;
+    x++;
+    is_neigbor_beside=0;
+    y++;
+    while (get_end == 0)
+    {
+
+        if(is_neigbor_beside!=0){
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            return 1;
+        }}
+        else if (game[x][y] == another_char)
+        {
+            x++;
+            y++;
+            is_neigbor_beside++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // find black down-left
+    x = x_move;
+    y = y_move;
+    x++;
+    is_neigbor_beside=0;
+    y--;
+    while (get_end == 0)
+    {
+
+        if(is_neigbor_beside!=0){
+
+        if (game[x][y] == game[x_move][y_move])
+        {
+            return 1;
+        }}
+        else if (game[x][y] == another_char)
+        {
+            x++;
+            y--;
+            is_neigbor_beside++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    return 0;
+}
